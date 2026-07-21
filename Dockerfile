@@ -1,19 +1,11 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM webdevops/php-nginx:8.3-alpine
 
-COPY . .
+ENV WEB_DOCUMENT_ROOT=/app/public
+ENV APP_ENV=production
+ENV APP_DEBUG=false
 
-# Config da imagem
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+WORKDIR /app
+COPY . /app
 
-# Config do Laravel
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
-
-# Permite o composer rodar como root
-ENV COMPOSER_ALLOW_SUPERUSER 1
-
-CMD ["/start.sh"]
+RUN composer install --no-dev --optimize-autoloader --working-dir=/app \
+    && chmod -R 775 storage bootstrap/cache
